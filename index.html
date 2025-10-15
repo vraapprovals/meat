@@ -1,0 +1,962 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Importer/Exporter Workflow Form</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    :root {
+      --bg: #0f1220;
+      --panel: #181b2e;
+      --text: #e8ebf7;
+      --muted: #a8afc9;
+      --accent: #61dafb;
+      --accent-2: #9ef797;
+      --danger: #ff6b6b;
+      --border: #2c3050;
+      --input: #1f2340;
+    }
+    * { box-sizing: border-box }
+    html, body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji","Segoe UI Emoji";
+      line-height: 1.5;
+    }
+    header {
+      position: sticky; top: 0; z-index: 20;
+      backdrop-filter: blur(8px);
+      background: linear-gradient(180deg, rgba(15,18,32,0.95), rgba(15,18,32,0.85));
+      border-bottom: 1px solid var(--border);
+    }
+    .container { max-width: 1100px; margin: 0 auto; padding: 16px }
+    
+    .header-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 10px;
+    }
+    
+    .header-title {
+      font-size: 1rem;
+      font-weight: 600;
+      flex: 1;
+      min-width: 0;
+    }
+    
+    .logo-container {
+      flex-shrink: 0;
+      width: 60px;
+      height: 60px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: #183f2a;
+      border: 1px solid #2f7a49;
+      border-radius: 12px;
+      overflow: hidden;
+    }
+    
+    .logo-container img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      padding: 4px;
+    }
+    
+    .logo-placeholder {
+      color: var(--accent-2);
+      font-weight: 700;
+      font-size: 0.75rem;
+      text-align: center;
+      padding: 4px;
+    }
+    
+    nav { 
+      display: flex; 
+      gap: 8px; 
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+      scrollbar-width: thin;
+      padding-bottom: 4px;
+    }
+    
+    nav::-webkit-scrollbar {
+      height: 4px;
+    }
+    
+    nav::-webkit-scrollbar-track {
+      background: var(--panel);
+    }
+    
+    nav::-webkit-scrollbar-thumb {
+      background: var(--border);
+      border-radius: 2px;
+    }
+    
+    nav a {
+      color: var(--text); 
+      text-decoration: none; 
+      padding: 6px 12px;
+      border: 1px solid var(--border); 
+      border-radius: 8px;
+      white-space: nowrap;
+      font-size: 0.9rem;
+      flex-shrink: 0;
+    }
+    nav a:hover { border-color: var(--accent); color: var(--accent) }
+
+    h2 { 
+      margin: 16px 0 12px;
+      font-size: 1.3rem;
+    }
+    h3 { margin: 16px 0 8px; color: var(--muted); font-size: 1.1rem; }
+
+    section {
+      margin: 16px 0; 
+      padding: 16px;
+      background: var(--panel); 
+      border: 1px solid var(--border); 
+      border-radius: 16px;
+    }
+
+    .grid-2 {
+      display: grid; 
+      grid-template-columns: repeat(2, minmax(0, 1fr)); 
+      gap: 12px;
+    }
+    .grid-3 { 
+      display: grid; 
+      grid-template-columns: repeat(3, minmax(0, 1fr)); 
+      gap: 12px;
+    }
+
+    label { 
+      display: block; 
+      font-weight: 600; 
+      margin-bottom: 6px;
+      font-size: 0.95rem;
+    }
+    .hint { 
+      color: var(--muted); 
+      font-size: 0.85rem;
+      margin-top: 4px;
+    }
+
+    input, select, textarea {
+      width: 100%; 
+      padding: 10px 12px;
+      background: var(--input); 
+      color: var(--text);
+      border: 1px solid var(--border); 
+      border-radius: 10px;
+      outline: none;
+      font-size: 1rem;
+    }
+    input:focus, select:focus, textarea:focus { border-color: var(--accent) }
+
+    .row { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+    .pill {
+      padding: 4px 8px; 
+      border: 1px solid var(--border); 
+      border-radius: 999px;
+      color: var(--muted);
+      font-size: 0.8rem;
+      white-space: nowrap;
+    }
+
+    .btn {
+      padding: 10px 14px; 
+      border-radius: 12px; 
+      border: 1px solid var(--border);
+      background: #22264a; 
+      color: var(--text); 
+      cursor: pointer;
+      font-size: 0.95rem;
+      white-space: nowrap;
+    }
+    .btn:hover { border-color: var(--accent); color: var(--accent) }
+    .btn-primary { background: #263b58; border-color: #284b75 }
+    .btn-success { background: #214b2e; border-color: #2f7a49 }
+    .btn-danger { background: #4b2121; border-color: #7a2f2f; color: #ffb3b3 }
+    .btn-sm { padding: 6px 10px; font-size: 0.85rem; }
+
+    /* Mobile-optimized table */
+    .table-wrapper {
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+      margin: 12px -16px;
+      padding: 0 16px;
+    }
+    
+    table { 
+      width: 100%; 
+      border-collapse: collapse;
+      min-width: 800px;
+    }
+    th, td { 
+      border-bottom: 1px solid var(--border); 
+      padding: 10px 8px; 
+      text-align: left;
+      font-size: 0.9rem;
+    }
+    th { 
+      color: var(--muted); 
+      font-weight: 700;
+      position: sticky;
+      top: 0;
+      background: var(--panel);
+      z-index: 1;
+    }
+    tfoot td { font-weight: 700 }
+
+    .unit-input-group {
+      display: flex;
+      gap: 4px;
+      align-items: center;
+      min-width: 140px;
+    }
+    
+    .unit-input-group input {
+      flex: 1;
+      min-width: 60px;
+    }
+    
+    .unit-input-group select {
+      flex-shrink: 0;
+      width: 65px;
+      padding: 8px 4px;
+    }
+
+    .badge { padding: 4px 8px; border-radius: 999px; font-size: 0.85rem }
+    .badge-ok { background: #183f2a; color: var(--accent-2); border: 1px solid #2f7a49 }
+    .badge-warn { background: #3f1c1c; color: #ffb1b1; border: 1px solid #7a2f2f }
+
+    .error { color: var(--danger); font-size: 0.9rem; margin-top: 4px; }
+    .success { color: var(--accent-2); font-size: 0.9rem; margin-top: 4px; }
+    
+    /* Mobile optimizations */
+    @media (max-width: 768px) {
+      .container { padding: 12px; }
+      
+      .header-top {
+        margin-bottom: 8px;
+      }
+      
+      .header-title {
+        font-size: 0.9rem;
+        line-height: 1.3;
+      }
+      
+      .logo-container {
+        width: 50px;
+        height: 50px;
+      }
+      
+      .pill {
+        display: none;
+      }
+      
+      nav {
+        gap: 6px;
+        margin-bottom: 4px;
+      }
+      
+      nav a {
+        padding: 6px 10px;
+        font-size: 0.85rem;
+      }
+      
+      section {
+        padding: 12px;
+        margin: 12px 0;
+        border-radius: 12px;
+      }
+      
+      h2 {
+        font-size: 1.2rem;
+        margin: 12px 0 10px;
+      }
+      
+      .grid-2, .grid-3 {
+        grid-template-columns: 1fr;
+        gap: 10px;
+      }
+      
+      label {
+        font-size: 0.9rem;
+      }
+      
+      input, select, textarea {
+        padding: 10px;
+        font-size: 16px; /* Prevents zoom on iOS */
+      }
+      
+      .table-wrapper {
+        margin: 12px -12px;
+        padding: 0 12px;
+      }
+      
+      table {
+        font-size: 0.85rem;
+      }
+      
+      th, td {
+        padding: 8px 6px;
+      }
+      
+      .btn {
+        width: 100%;
+        padding: 12px;
+        font-size: 1rem;
+      }
+      
+      .row {
+        flex-direction: column;
+        align-items: stretch;
+      }
+      
+      .row .btn {
+        width: 100%;
+      }
+    }
+    
+    @media (max-width: 480px) {
+      .header-title {
+        font-size: 0.85rem;
+      }
+      
+      .logo-container {
+        width: 45px;
+        height: 45px;
+      }
+      
+      nav a {
+        font-size: 0.8rem;
+        padding: 5px 8px;
+      }
+      
+      h2 {
+        font-size: 1.1rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="container">
+      <div class="header-top">
+        <div class="header-title">
+          <strong>Application for the permit to Import Meat, Meat Products and Edible Offal</strong>
+          <span class="pill">Fill all the details</span>
+        </div>
+        <div class="logo-container">
+          <!-- STEP 1: Replace this div with an img tag -->
+          <!-- Your logo image should be uploaded to the same folder as this HTML file -->
+          <!-- Then uncomment the line below and replace 'your-logo.png' with your actual filename -->
+          <!-- <img src="your-logo.png" alt="DAPH Logo" /> -->
+          
+          <!-- STEP 2: Delete this placeholder div once you add the image -->
+          <img src="daphlogo.png" alt="DAPH Logo" />
+        </div>
+      </div>
+      <nav>
+        <a href="#importer">Importer</a>
+        <a href="#exporter">Exporter</a>
+        <a href="#origin">Origin</a>
+        <a href="#transshipment">Transshipment</a>
+        <a href="#meat">Meat products</a>
+        <a href="#summary">Summary</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="container">
+    <!-- 1. Importer Details -->
+    <section id="importer">
+      <h2>Importer details</h2>
+      <div class="grid-2">
+        <div>
+          <label for="impCompany">Company name (Imp) *</label>
+          <input id="impCompany" name="impCompany" required placeholder="e.g., ABC Company" />
+        </div>
+        <div>
+          <label for="impAddr1">Address line 1 (Imp)</label>
+          <input id="impAddr1" name="impAddr1" placeholder="Street / Building" />
+        </div>
+        <div>
+          <label for="impAddr2">Address line 2 (Imp)</label>
+          <input id="impAddr2" name="impAddr2" placeholder="City / Region" />
+        </div>
+        <div>
+          <label for="impPostalcode">Postal Code (Imp)</label>
+          <input id="impPostalcode" name="impPostalcode" placeholder="Postal code" />
+        </div>
+        <div>
+          <label for="impEmail">Email ID (Imp)</label>
+          <input id="impEmail" name="impEmail" type="email" placeholder="name@company.com" />
+        </div>
+        <div>
+          <label for="impPhone">WhatsApp no (Imp)</label>
+          <input id="impPhone" name="impPhone" placeholder="+94 77 123 4567" pattern="^(\+?\d[\d\s\-]{6,})$" />
+          <div class="hint">Accepts country code, spaces, and dashes.</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 2. Exporter Details -->
+    <section id="exporter">
+      <h2>Exporter details</h2>
+      <div class="grid-2">
+        <div>
+          <label for="expCompany">Company name (Exp) *</label>
+          <input id="expCompany" name="expCompany" required placeholder="e.g., ABC Company" />
+        </div>
+        <div>
+          <label for="expAddr1">Address line 1 (Exp)</label>
+          <input id="expAddr1" name="expAddr1" placeholder="Street / Building" />
+        </div>
+        <div>
+          <label for="expAddr2">Address line 2 (Exp)</label>
+          <input id="expAddr2" name="expAddr2" placeholder="City / Region" />
+        </div>
+        <div>
+          <label for="expPostalcode">Postal Code (Exp)</label>
+          <input id="expPostalcode" name="expPostalcode" placeholder="Postal code" />
+        </div>
+        <div>
+          <label for="expEmail">Email ID (Exp)</label>
+          <input id="expEmail" name="expEmail" type="email" placeholder="name@company.com" />
+        </div>
+        <div>
+          <label for="expWhatsApp">WhatsApp no (Exp)</label>
+          <input id="expWhatsApp" name="expWhatsApp" placeholder="+49 160 123 4567" pattern="^(\+?\d[\d\s\-]{6,})$" />
+          <div class="hint">Optional; leave empty if not provided.</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 3. Origin Details -->
+    <section id="origin">
+      <h2>Origin details</h2>
+      <div class="grid-2">
+        <div>
+          <label for="originCountry">Country of origin *</label>
+          <input id="originCountry" name="originCountry" required placeholder="e.g., Country name" />
+        </div>
+        <div>
+          <label for="oriCompanyname">Company name (Origin)</label>
+          <input id="oriCompanyname" name="oriCompanyname" placeholder="ABC Company" />
+        </div>
+        <div>
+          <label for="oriAddr1">Address line 1 (Origin)</label>
+          <input id="oriAddr1" name="oriAddr1" placeholder="Street / Building" />
+        </div>
+        <div>
+          <label for="oriAddr2">Address line 2 (Origin)</label>
+          <input id="oriAddr2" name="oriAddr2" placeholder="City / Region" />
+        </div>
+        <div>
+          <label for="oriPostalcode">Postal Code (Origin)</label>
+          <input id="oriPostalcode" name="oriPostalcode" placeholder="e.g. 20270" />
+        </div>
+        <div>
+          <label for="oriRegno">Reg.No (Origin)</label>
+          <input id="oriRegno" name="oriRegno" placeholder="3457827354" />
+          <div class="hint">Optional; leave empty if not provided.</div>
+        </div>
+      </div>
+    </section>
+          
+    <!-- 4. Transshipment Details -->
+    <section id="transshipment">
+      <h2>Transshipment details</h2>
+      <div class="grid-2">
+        <div>
+          <label for="embarkation">Place of embarkation *</label>
+          <input id="embarkation" name="embarkation" required placeholder="e.g., Starting Port" />
+        </div>
+        <div>
+          <label for="disembarkation">Place of disembarkation *</label>
+          <input id="disembarkation" name="disembarkation" required placeholder="e.g., Final Port" />
+        </div>
+        <div>
+          <label for="exportDate">Expected date of export *</label>
+          <input id="exportDate" name="exportDate" type="date" required />
+        </div>
+        <div>
+          <label for="arrivalDate">Expected date of arrival *</label>
+          <input id="arrivalDate" name="arrivalDate" type="date" required />
+        </div>
+        <div>
+          <label for="mode">Mode of transshipment *</label>
+          <select id="mode" name="mode" required>
+            <option value="">Select mode</option>
+            <option value="air">Air</option>
+            <option value="ship">Ship</option>
+          </select>
+        </div>
+        <div>
+          <label for="transportNumber">Flight/Ship number</label>
+          <input id="transportNumber" name="transportNumber" placeholder="e.g., UL 123 / MSC Aurora" />
+        </div>
+      </div>
+      <div style="margin-top: 12px;">
+        <label for="route">Detailed route to Sri Lanka</label>
+        <textarea id="route" name="route" rows="3" placeholder="List ports/airports in order..."></textarea>
+      </div>
+      <div class="grid-2" style="margin-top: 12px;">
+        <div>
+          <label for="processing">Any processing/unloading *</label>
+          <select id="processing" name="processing" required>
+            <option value="">Select option</option>
+            <option value="yes">Yes</option>
+            <option value="no">No</option>
+          </select>
+        </div>
+      </div>
+    </section>
+
+    <!-- 5. Meat Products Table -->
+    <section id="meat">
+      <h2>Meat products details</h2>
+
+      <div class="table-wrapper">
+        <table id="meatTable">
+          <thead>
+            <tr>
+              <th style="min-width: 40px;">No</th>
+              <th style="min-width: 100px;">Meat type</th>
+              <th style="min-width: 120px;">Product name</th>
+              <th style="min-width: 140px;">Product description</th>
+              <th style="min-width: 140px;">Unit weight</th>
+              <th style="min-width: 60px;">Qty.</th>
+              <th style="min-width: 80px;">Total (kg)</th>
+              <th style="min-width: 90px;">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <!-- Dynamic rows will be added here -->
+          </tbody>
+          <tfoot>
+            <tr>
+              <td colspan="6" style="text-align:right;font-weight:bold;">Grand total (kg)</td>
+              <td id="grandTotal">0.00</td>
+              <td></td>
+            </tr>
+          </tfoot>
+        </table>
+      </div>
+
+      <div class="row" style="margin-top:10px;">
+        <button class="btn" type="button" id="addMeatRow">Add row</button>
+        <button class="btn btn-danger" type="button" id="clearMeatRows">Clear all rows</button>
+      </div>
+    </section>
+
+    <!-- 6. Summary & Submit -->
+    <section id="summary">
+      <h2>Summary & submit</h2>
+      <div id="summaryBox" class="hint">Click "Generate summary" to preview your form data before submission.</div>
+      <div class="row" style="margin-top:10px; gap: 12px;">
+        <button class="btn btn-primary" type="button" id="generateSummary">Generate summary</button>
+        <button class="btn btn-success" type="button" id="submitAll">Submit application</button>
+      </div>
+      <div id="submitStatus" style="margin-top: 12px;"></div>
+    </section>
+  </main>
+
+  <script>
+    // Global variables
+    const meatTableBody = document.querySelector("#meatTable tbody");
+    const grandTotalCell = document.querySelector("#grandTotal");
+    let rowCounter = 0;
+
+    // Utility functions
+    function showError(message) {
+      const status = document.querySelector("#submitStatus");
+      status.innerHTML = `<div class="error">${message}</div>`;
+    }
+
+    function showSuccess(message) {
+      const status = document.querySelector("#submitStatus");
+      status.innerHTML = `<div class="success">${message}</div>`;
+    }
+
+    function clearStatus() {
+      document.querySelector("#submitStatus").innerHTML = "";
+    }
+
+    // Convert unit weight to kilograms
+    function convertToKg(value, unit) {
+      const numValue = parseFloat(value) || 0;
+      switch (unit) {
+        case "g": return numValue / 1000;
+        case "t": return numValue * 1000;
+        default: return numValue;
+      }
+    }
+
+    // Update row numbers
+    function updateRowNumbers() {
+      const rows = meatTableBody.querySelectorAll("tr");
+      rows.forEach((row, index) => {
+        const numberCell = row.querySelector(".row-number");
+        if (numberCell) {
+          numberCell.textContent = index + 1;
+        }
+      });
+    }
+
+    // Calculate and update totals
+    function updateTotals() {
+      let grandTotal = 0;
+
+      const rows = meatTableBody.querySelectorAll("tr");
+      rows.forEach(row => {
+        const unitWeightInput = row.querySelector('input[name="unitWeight"]');
+        const unitTypeSelect = row.querySelector('select[name="unitType"]');
+        const qtyInput = row.querySelector('input[name="qty"]');
+        const totalWeightCell = row.querySelector(".total-weight");
+
+        if (unitWeightInput && unitTypeSelect && qtyInput && totalWeightCell) {
+          const unitWeight = parseFloat(unitWeightInput.value) || 0;
+          const unitType = unitTypeSelect.value;
+          const qty = parseInt(qtyInput.value) || 0;
+
+          const totalWeightKg = convertToKg(unitWeight, unitType) * qty;
+          totalWeightCell.textContent = totalWeightKg.toFixed(2);
+          grandTotal += totalWeightKg;
+        }
+      });
+
+      grandTotalCell.textContent = grandTotal.toFixed(2);
+    }
+
+    // Create a new meat product row
+    function createMeatRow() {
+      rowCounter++;
+      const row = document.createElement("tr");
+      
+      row.innerHTML = `
+        <td class="row-number">${rowCounter}</td>
+        <td>
+          <select name="meatType" required>
+            <option value="">Select type</option>
+            <option value="Beef">Beef</option>
+            <option value="Chicken">Chicken</option>
+            <option value="Pork">Pork</option>
+            <option value="Mutton">Mutton</option>
+            <option value="Turkey">Turkey</option>
+            <option value="Seafood">Seafood</option>
+            <option value="Processed">Processed</option>
+            <option value="Unprocessed">Unprocessed</option>
+          </select>
+        </td>
+        <td><input name="productName" placeholder="e.g., Breast" required /></td>
+        <td><input name="productDesc" placeholder="Product description" /></td>
+        <td>
+          <div class="unit-input-group">
+            <input type="number" name="unitWeight" step="0.01" min="0" value="0" required />
+            <select name="unitType">
+              <option value="kg">kg</option>
+              <option value="g">g</option>
+              <option value="t">ton</option>
+            </select>
+          </div>
+        </td>
+        <td><input type="number" name="qty" min="1" value="1" required /></td>
+        <td class="total-weight">0.00</td>
+        <td>
+          <button type="button" class="btn btn-danger btn-sm remove-row">Remove</button>
+        </td>
+      `;
+
+      // Add event listeners for calculation
+      const inputs = row.querySelectorAll('input[name="unitWeight"], input[name="qty"], select[name="unitType"]');
+      inputs.forEach(input => {
+        input.addEventListener("input", updateTotals);
+        input.addEventListener("change", updateTotals);
+      });
+
+      // Add remove functionality
+      const removeBtn = row.querySelector(".remove-row");
+      removeBtn.addEventListener("click", () => {
+        row.remove();
+        updateRowNumbers();
+        updateTotals();
+      });
+
+      return row;
+    }
+
+    // Add row button functionality
+    document.querySelector("#addMeatRow").addEventListener("click", () => {
+      const newRow = createMeatRow();
+      meatTableBody.appendChild(newRow);
+      updateTotals();
+    });
+
+    // Clear all rows button functionality
+    document.querySelector("#clearMeatRows").addEventListener("click", () => {
+      if (confirm("Are you sure you want to clear all meat product rows?")) {
+        meatTableBody.innerHTML = "";
+        rowCounter = 0;
+        updateTotals();
+      }
+    });
+
+    // Form validation
+    function validateForm() {
+      const requiredFields = document.querySelectorAll("input[required], select[required]");
+      const errors = [];
+
+      requiredFields.forEach(field => {
+        if (!field.value.trim()) {
+          const label = document.querySelector(`label[for="${field.id}"]`);
+          const fieldName = label ? label.textContent.replace(" *", "") : field.name;
+          errors.push(`${fieldName} is required`);
+        }
+      });
+
+      if (meatTableBody.children.length === 0) {
+        errors.push("At least one meat product must be added");
+      }
+
+      const emailFields = document.querySelectorAll('input[type="email"]');
+      emailFields.forEach(field => {
+        if (field.value && !field.checkValidity()) {
+          errors.push(`Invalid email format: ${field.value}`);
+        }
+      });
+
+      const exportDate = document.querySelector("#exportDate").value;
+      const arrivalDate = document.querySelector("#arrivalDate").value;
+      
+      if (exportDate && arrivalDate && new Date(exportDate) >= new Date(arrivalDate)) {
+        errors.push("Export date must be before arrival date");
+      }
+
+      return errors;
+    }
+
+    // Collect form data
+    function collectFormData() {
+      const data = {
+        importer: {
+          company: document.querySelector("#impCompany").value,
+          address1: document.querySelector("#impAddr1").value,
+          address2: document.querySelector("#impAddr2").value,
+          postalCode: document.querySelector("#impPostalcode").value,
+          email: document.querySelector("#impEmail").value,
+          whatsapp: document.querySelector("#impPhone").value
+        },
+        exporter: {
+          company: document.querySelector("#expCompany").value,
+          address1: document.querySelector("#expAddr1").value,
+          address2: document.querySelector("#expAddr2").value,
+          postalCode: document.querySelector("#expPostalcode").value,
+          email: document.querySelector("#expEmail").value,
+          whatsapp: document.querySelector("#expWhatsApp").value
+        },
+        origin: {
+          country: document.querySelector("#originCountry").value,
+          company: document.querySelector("#oriCompanyname").value,
+          address1: document.querySelector("#oriAddr1").value,
+          address2: document.querySelector("#oriAddr2").value,
+          postalCode: document.querySelector("#oriPostalcode").value,
+          regNumber: document.querySelector("#oriRegno").value
+        },
+        transshipment: {
+          embarkation: document.querySelector("#embarkation").value,
+          disembarkation: document.querySelector("#disembarkation").value,
+          exportDate: document.querySelector("#exportDate").value,
+          arrivalDate: document.querySelector("#arrivalDate").value,
+          mode: document.querySelector("#mode").value,
+          transportNumber: document.querySelector("#transportNumber").value,
+          route: document.querySelector("#route").value,
+          processing: document.querySelector("#processing").value
+        },
+        meatProducts: [],
+        summary: {
+          totalWeight: grandTotalCell.textContent,
+          productCount: meatTableBody.children.length,
+          submissionTime: new Date().toISOString()
+        }
+      };
+
+      const rows = meatTableBody.querySelectorAll("tr");
+      rows.forEach((row, index) => {
+        data.meatProducts.push({
+          number: index + 1,
+          meatType: row.querySelector('select[name="meatType"]').value,
+          productName: row.querySelector('input[name="productName"]').value,
+          productDesc: row.querySelector('input[name="productDesc"]').value,
+          unitWeight: row.querySelector('input[name="unitWeight"]').value,
+          unitType: row.querySelector('select[name="unitType"]').value,
+          quantity: row.querySelector('input[name="qty"]').value,
+          totalWeight: row.querySelector(".total-weight").textContent
+        });
+      });
+
+      return data;
+    }
+
+    // Generate summary
+    document.querySelector("#generateSummary").addEventListener("click", () => {
+      clearStatus();
+      const data = collectFormData();
+      
+      const summary = `
+        <h3>Form Summary</h3>
+        <p><strong>Importer:</strong> ${data.importer.company}</p>
+        <p><strong>Exporter:</strong> ${data.exporter.company}</p>
+        <p><strong>Origin Country:</strong> ${data.origin.country}</p>
+        <p><strong>Transport Mode:</strong> ${data.transshipment.mode}</p>
+        <p><strong>Export Date:</strong> ${data.transshipment.exportDate}</p>
+        <p><strong>Arrival Date:</strong> ${data.transshipment.arrivalDate}</p>
+        <p><strong>Total Products:</strong> ${data.summary.productCount}</p>
+        <p><strong>Total Weight:</strong> ${data.summary.totalWeight} kg</p>
+        <p class="hint">Review the details above before submitting the application.</p>
+      `;
+      
+      document.querySelector("#summaryBox").innerHTML = summary;
+    });
+
+    // Submit form
+    document.querySelector("#submitAll").addEventListener("click", async () => {
+      clearStatus();
+      
+      const errors = validateForm();
+      if (errors.length > 0) {
+        showError("Please fix the following errors:<br>• " + errors.join("<br>• "));
+        return;
+      }
+
+      const data = collectFormData();
+      const formData = new FormData();
+      
+      formData.append("impCompany", data.importer.company);
+      formData.append("impAddr1", data.importer.address1);
+      formData.append("impAddr2", data.importer.address2);
+      formData.append("impPostalcode", data.importer.postalCode);
+      formData.append("impEmail", data.importer.email);
+      formData.append("impPhone", data.importer.whatsapp);
+      
+      formData.append("expCompany", data.exporter.company);
+      formData.append("expAddr1", data.exporter.address1);
+      formData.append("expAddr2", data.exporter.address2);
+      formData.append("expPostalcode", data.exporter.postalCode);
+      formData.append("expEmail", data.exporter.email);
+      formData.append("expWhatsApp", data.exporter.whatsapp);
+      
+      formData.append("originCountry", data.origin.country);
+      formData.append("oriCompanyname", data.origin.company);
+      formData.append("oriAddr1", data.origin.address1);
+      formData.append("oriAddr2", data.origin.address2);
+      formData.append("oriPostalcode", data.origin.postalCode);
+      formData.append("oriRegno", data.origin.regNumber);
+      
+      formData.append("embarkation", data.transshipment.embarkation);
+      formData.append("disembarkation", data.transshipment.disembarkation);
+      formData.append("exportDate", data.transshipment.exportDate);
+      formData.append("arrivalDate", data.transshipment.arrivalDate);
+      formData.append("mode", data.transshipment.mode);
+      formData.append("transportNumber", data.transshipment.transportNumber);
+      formData.append("route", data.transshipment.route);
+      formData.append("processing", data.transshipment.processing);
+
+      data.meatProducts.forEach((product, index) => {
+        formData.append(`meatProduct_${index + 1}_number`, product.number);
+        formData.append(`meatProduct_${index + 1}_meatType`, product.meatType);
+        formData.append(`meatProduct_${index + 1}_productName`, product.productName);
+        formData.append(`meatProduct_${index + 1}_productDesc`, product.productDesc);
+        formData.append(`meatProduct_${index + 1}_unitWeight`, product.unitWeight);
+        formData.append(`meatProduct_${index + 1}_unitType`, product.unitType);
+        formData.append(`meatProduct_${index + 1}_quantity`, product.quantity);
+        formData.append(`meatProduct_${index + 1}_totalWeight`, product.totalWeight);
+      });
+      
+      formData.append("meatProducts", JSON.stringify(data.meatProducts));
+      formData.append("totalWeight", data.summary.totalWeight);
+      formData.append("productCount", data.summary.productCount);
+      formData.append("submissionTime", data.summary.submissionTime);
+      
+      try {
+        showSuccess("Submitting application...");
+        
+        const scriptURL = "https://script.google.com/macros/s/AKfycbyDihlyiKlP1rVFOVBYK--le89PhLVrW87QURLji2YUm8lPukgq-0gZjTTHoaURb5BS/exec";
+        
+        const response = await fetch(scriptURL, {
+          method: "POST",
+          body: formData
+        });
+
+        showSuccess("✅ Application submitted successfully!");
+        
+        setTimeout(() => {
+          if (confirm("Form submitted successfully! Would you like to reset the form for a new application?")) {
+            location.reload();
+          }
+        }, 2000);
+        
+      } catch (error) {
+        console.error("Submission error:", error);
+        showError("❌ Failed to submit application: " + error.message);
+      }
+    });
+
+    // Initialize form with one meat product row
+    document.addEventListener("DOMContentLoaded", () => {
+      const initialRow = createMeatRow();
+      meatTableBody.appendChild(initialRow);
+      updateTotals();
+    });
+
+    // Smooth scrolling for navigation links
+    document.querySelectorAll('nav a[href^="#"]').forEach(link => {
+      link.addEventListener("click", (e) => {
+        e.preventDefault();
+        const target = document.querySelector(link.getAttribute("href"));
+        if (target) {
+          target.scrollIntoView({ behavior: "smooth", block: "start" });
+        }
+      });
+    });
+  </script>
+</body>
+
+</html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
